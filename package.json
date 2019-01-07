@@ -1,0 +1,40 @@
+{
+  "name": "@bfalk8/tello-server",
+  "version": "0.0.1",
+  "description": "Server to talk to the Tello drone",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run tslint && npm run build:ts",
+    "build:ts": "tsc",
+    "tslint": "tslint -c tslint.json -p tsconfig.json",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bfalk8/tello-server.git"
+  },
+  "keywords": [
+    "tello",
+    "drone",
+    "socketio",
+    "dgram",
+    "udp"
+  ],
+  "author": "bfalk8",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bfalk8/tello-server/issues"
+  },
+  "homepage": "https://github.com/bfalk8/tello-server#readme",
+  "devDependencies": {
+    "@types/lodash": "^4.14.119",
+    "@types/node": "^10.12.18",
+    "tslint": "^5.12.0",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-config-prettier": "^1.17.0",
+    "typescript": "^3.2.2"
+  },
+  "dependencies": {
+    "lodash": "^4.17.11"
+  }
+}

@@ -14,7 +14,7 @@ export class CommandDispatcher {
 	private commandCallback = (err: Error, bytes: number) => console.error(err);
 
 	dispatch = ({ buffer, size, offset, type }: DispatchCommand) => {
-    console.log(`Dispatching command: ${type}, to addr: ${this.address}:${this.port}`)
+    console.info(`Dispatching command: ${type}, to addr: ${this.address}:${this.port}`)
 		this.client.send(buffer, offset, size, this.port, this.address, this.commandCallback);
 	};
 }

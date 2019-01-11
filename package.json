@@ -2,13 +2,14 @@
   "name": "@bfalk8/tello-server",
   "version": "0.0.1",
   "description": "Server to talk to the Tello drone",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "npm run tslint && npm run test && npm run build:ts",
     "build:ts": "tsc",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "test": "mocha -r ts-node/register src/**/*.spec.ts",
-    "cli": "ts-node src/ConsoleClient.ts"
+    "cli": "ts-node src/ConsoleClient.ts",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",

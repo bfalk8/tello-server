@@ -74,7 +74,7 @@ export class TelloServer {
 	};
 
 	private handleReceiveCommand = (msg: string, info: { address: string; family: string; port: number; size: number }) =>
-		console.log(msg.toString());
+		console.info(`Received command: ${msg.toString()}`);
 
 	dispatch = (command: DispatchCommand): void => {
 		this.dispatcher.dispatch(command);

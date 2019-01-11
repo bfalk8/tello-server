@@ -3,11 +3,13 @@ import TelloServer from './TelloServer';
 // init
 const tello = new TelloServer();
 
+// command mapping
 const runCommand = (command: string) => {
   const [verb, ...params] = command.split(' ');
-  console.log(verb);
-  console.log(params);
+  console.info(`runCommand verb: ${verb}`);
+  console.info(`runCommand params: ${params}`);
   switch(verb) {
+    // control commands
     case 'takeoff': tello.control.takeOff(); break;
     case 'land': tello.control.land(); break;
     case 'rotatecw': tello.control.rotateCW(Number(params[0])); break;
@@ -33,6 +35,7 @@ rl.prompt();
 
 // capture commands
 rl.on('line', (line: string) => {
+    console.info(`read line: ${line}`)
     runCommand(line);
     rl.prompt();
 }).on('close', () => {

@@ -29,10 +29,13 @@ export const up = (distance: number) => createCommand(ControlCommands.UP, _.clam
 export const down = (distance: number) => createCommand(ControlCommands.DOWN, _.clamp(distance, 20, 500).toString());
 export const left = (distance: number) => createCommand(ControlCommands.LEFT, _.clamp(distance, 20, 500).toString());
 export const right = (distance: number) => createCommand(ControlCommands.RIGHT, _.clamp(distance, 20, 500).toString());
-export const forward = (distance: number) => createCommand(ControlCommands.FORWARD, _.clamp(distance, 20, 500).toString());
+export const forward = (distance: number) =>
+	createCommand(ControlCommands.FORWARD, _.clamp(distance, 20, 500).toString());
 export const back = (distance: number) => createCommand(ControlCommands.BACK, _.clamp(distance, 20, 500).toString());
-export const rotateCW = (angle: number) => createCommand(ControlCommands.ROTATE_CLOCKWISE, _.clamp(angle, 1, 3600).toString());
-export const rotateCCW = (angle: number) => createCommand(ControlCommands.ROTATE_COUNTER_CLOCKWISE, _.clamp(angle, 1, 3600).toString());
+export const rotateCW = (angle: number) =>
+	createCommand(ControlCommands.ROTATE_CLOCKWISE, _.clamp(angle, 1, 3600).toString());
+export const rotateCCW = (angle: number) =>
+	createCommand(ControlCommands.ROTATE_COUNTER_CLOCKWISE, _.clamp(angle, 1, 3600).toString());
 export const flip = (direction: string) => createCommand(ControlCommands.FLIP, direction);
 
 // Set Commands
@@ -45,4 +48,18 @@ export default {
 	connect,
 	takeOff,
 	land,
+	videoStreamOn,
+	videoStreamOff,
+	OHFUCK,
+	up,
+	down,
+	left,
+	right,
+	forward,
+	back,
+	rotateCW,
+	rotateCCW,
+	flip,
+	speed,
+	wifi,
 };

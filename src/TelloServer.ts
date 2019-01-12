@@ -15,13 +15,17 @@ import {
 	forward,
 	back,
 	down,
-  rotateCW,
-  rotateCCW,
-  flip,
-  speed,
-  wifi,
+	rotateCW,
+	rotateCCW,
+	flip,
+	speed,
+	wifi,
 } from './CommandCreator';
+import { EventEmitter } from 'events';
+import { commandDelays } from './constants/CommandDelays';
+import { ControlCommands } from './constants/Commands';
 
+const DELAY_EXPIRED = 'delay_expired';
 export class TelloServer {
 	private commandClient: Socket;
 	private stateClient: Socket;
@@ -36,6 +40,9 @@ export class TelloServer {
 
 	private dispatcher: CommandDispatcher;
 
+	private canDispatch: boolean;
+	private dispatchEmitter: EventEmitter;
+
 	constructor(
 		sendAddress = HOST,
 		commandSendPort = ports.COMMANDS,
@@ -43,6 +50,12 @@ export class TelloServer {
 		stateReceivePort = ports.STATE,
 		videoReceivePort = ports.VIDEO
 	) {
+		this.canDispatch = false;
+		this.dispatchEmitter = new EventEmitter();
+		this.dispatchEmitter.on(DELAY_EXPIRED, () => {
+			this.canDispatch = true;
+		});
+
 		this.sendAddress = sendAddress;
 		this.commandSendPort = commandSendPort;
 		this.commandReceivePort = commandReceivePort;
@@ -54,6 +67,7 @@ export class TelloServer {
 		this.setupSocketHandlers();
 		this.dispatcher = new CommandDispatcher(this.commandClient, this.sendAddress, this.commandSendPort);
 		this.dispatcher.dispatch(connect());
+		setTimeout(() => this.dispatchEmitter.emit(DELAY_EXPIRED), commandDelays.get(ControlCommands.COMMAND));
 	}
 
 	private createSockets = () => {
@@ -76,8 +90,16 @@ export class TelloServer {
 	private handleReceiveCommand = (msg: string, info: { address: string; family: string; port: number; size: number }) =>
 		console.info(`Received command: ${msg.toString()}`);
 
-	dispatch = (command: DispatchCommand): void => {
-		this.dispatcher.dispatch(command);
+	dispatch = (command: DispatchCommand): boolean => {
+		if (this.canDispatch) {
+			this.canDispatch = false;
+			this.dispatcher.dispatch(command);
+			setTimeout(() => this.dispatchEmitter.emit(DELAY_EXPIRED), commandDelays.get(command.type));
+			return true;
+		}
+		// dispatch failed due to delay
+		console.info(`Command ${command.buffer.toString()} not dispatched due to delay`);
+		return false;
 	};
 
 	close = () => {
@@ -102,12 +124,12 @@ export class TelloServer {
 		rotateCW: (angle: number) => this.dispatch(rotateCW(angle)),
 		rotateCCW: (angle: number) => this.dispatch(rotateCCW(angle)),
 		flip: (direction: string) => this.dispatch(flip(direction)),
-  };
-  
-  set = {
-    speed: (velocity: number) => this.dispatch(speed(velocity)),
-    wifi: (ssid: string, password: string) => this.dispatch(wifi(ssid, password)),
-  };
+	};
+
+	set = {
+		speed: (velocity: number) => this.dispatch(speed(velocity)),
+		wifi: (ssid: string, password: string) => this.dispatch(wifi(ssid, password)),
+	};
 }
 
 export default TelloServer;

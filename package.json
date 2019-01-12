@@ -1,6 +1,6 @@
 {
   "name": "@bfalk8/tello-server",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Server to talk to the Tello drone",
   "main": "dist/index.js",
   "scripts": {

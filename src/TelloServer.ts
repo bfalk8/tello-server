@@ -24,6 +24,7 @@ import {
 import { EventEmitter } from 'events';
 import { commandDelays } from './constants/CommandDelays';
 import { ControlCommands } from './constants/Commands';
+import { mapStreamToTelloState, mapBufferToTelloState, TelloState } from './constants/TelloState';
 
 const DELAY_EXPIRED = 'delay_expired';
 export class TelloServer {
@@ -42,6 +43,7 @@ export class TelloServer {
 
 	private canDispatch: boolean;
 	private dispatchEmitter: EventEmitter;
+	private stateEmitter: EventEmitter;
 
 	constructor(
 		sendAddress = HOST,
@@ -55,6 +57,7 @@ export class TelloServer {
 		this.dispatchEmitter.on(DELAY_EXPIRED, () => {
 			this.canDispatch = true;
 		});
+		this.stateEmitter = new EventEmitter();
 
 		this.sendAddress = sendAddress;
 		this.commandSendPort = commandSendPort;
@@ -66,8 +69,8 @@ export class TelloServer {
 		this.bindSockets();
 		this.setupSocketHandlers();
 		this.dispatcher = new CommandDispatcher(this.commandClient, this.sendAddress, this.commandSendPort);
-		this.dispatcher.dispatch(connect());
-		setTimeout(() => this.dispatchEmitter.emit(DELAY_EXPIRED), commandDelays.get(ControlCommands.COMMAND));
+		this.canDispatch = true;
+		this.connect();
 	}
 
 	private createSockets = () => {
@@ -80,15 +83,27 @@ export class TelloServer {
 	private bindSockets = () => {
 		this.commandClient.bind(this.commandReceivePort);
 		this.stateClient.bind(this.stateReceivePort);
-		this.videoClient.bind(this.videoReceivePort);
+		// this.videoClient.bind(this.videoReceivePort);
 	};
 
 	private setupSocketHandlers = () => {
 		this.commandClient.on('message', this.handleReceiveCommand);
+		this.stateClient.on('message', this.handleReceiveState);
 	};
 
-	private handleReceiveCommand = (msg: string, info: { address: string; family: string; port: number; size: number }) =>
+	private handleReceiveCommand = (msg: Buffer, info: { address: string; family: string; port: number; size: number }) =>
 		console.info(`Received command: ${msg.toString()}`);
+
+	private handleReceiveState = (msg: Buffer, info: { address: string; family: string; port: number; size: number }) => {
+		const state = mapBufferToTelloState(msg);
+		// console.info(`Received command: ${msg.toString()}`);
+		// console.info(mapBufferToTelloState(msg));
+		this.stateEmitter.emit('message', state);
+	};
+	
+	connect = (): boolean => {
+		return this.dispatch(connect());
+	};
 
 	dispatch = (command: DispatchCommand): boolean => {
 		if (this.canDispatch) {
@@ -106,6 +121,10 @@ export class TelloServer {
 		this.commandClient.close();
 		this.stateClient.close();
 		this.videoClient.close();
+	};
+
+	addStateListener = (callback: (state: TelloState) => any) => {
+		this.stateEmitter.on('message', callback);
 	};
 
 	control = {
